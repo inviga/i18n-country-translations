@@ -18,8 +18,17 @@ module I18nCountryTranslations
     end
 
     def self.pattern_from(args)
-      array = Array(args || [])
-      array.blank? ? '*' : "{#{array.join ','}}"
+      args ||= []
+      array = args.map(&:to_s).inject([]) do |memo, obj|
+        # Add the requested locale
+        memo << obj
+        # If the requested locale specifies a sub-language, make sure we add the default-language too.
+        if /^(\w{2,3})-\w+/.match(obj)
+          memo << $1
+        end
+        memo
+      end
+      array.blank? ? '*' : "{#{array.uniq.join ','}}"
     end
   end
 end
